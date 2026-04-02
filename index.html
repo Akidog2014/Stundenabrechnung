@@ -1,44 +1,43 @@
-```html
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Zeiterfassung</title>
+<title>Zeiterfassung PRO</title>
 
 <style>
     body {
         font-family: Arial, sans-serif;
         text-align: center;
-        padding: 5vw;
-        background-color: #f5f5f5;
+        padding: 4vw;
+        background-color: #eeeeee;
         margin: 0;
     }
 
     h2 {
-        margin-bottom: 5vh;
-        font-size: 5vw;
+        font-size: 8vw;
+        margin-bottom: 4vh;
     }
 
-    /* BUTTON CONTAINER */
     .button-container {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 2vh;
-        width: 100%;
+        gap: 3vh;
     }
 
-    /* BUTTONS */
     button {
-        font-size: 5vw;
-        height: 12vh;
-        min-height: 60px;
-        max-height: 100px;
-        border: none;
-        border-radius: 3vw;
-        color: white;
-        width: 90vw;
+        width: 85vw;
         max-width: 600px;
+
+        height: 16vh;
+        min-height: 90px;
+
+        font-size: 8vw;
+        font-weight: bold;
+
+        border: none;
+        border-radius: 5vw;
+        color: white;
 
         display: flex;
         align-items: center;
@@ -46,72 +45,81 @@
     }
 
     #startStopBtn {
-        background-color: green;
+        background-color: #008000; /* kräftiges Grün */
     }
 
     #saveTextBtn {
-        background-color: blue;
+        background-color: #0055ff;
     }
 
     #sendBtn {
-        background-color: orange;
+        background-color: #ff8800;
     }
 
     button:active {
-        transform: scale(0.97);
+        transform: scale(0.95);
     }
 
     textarea {
-        width: 90vw;
+        width: 85vw;
         max-width: 600px;
-        height: 15vh;
-        margin-top: 2vh;
-        font-size: 4vw;
-        border-radius: 3vw;
-        padding: 3vw;
+
+        height: 20vh;
+
+        font-size: 6vw;
+        margin-top: 3vh;
+
+        border-radius: 4vw;
+        padding: 4vw;
     }
 
     #log {
         margin-top: 4vh;
         text-align: left;
-        width: 90vw;
+
+        width: 85vw;
         max-width: 600px;
+
         margin-left: auto;
         margin-right: auto;
+
         background: white;
-        padding: 3vw;
-        border-radius: 3vw;
-        font-size: 4vw;
+        padding: 4vw;
+        border-radius: 4vw;
+
+        font-size: 6vw;
     }
 
     #log p {
-        margin: 1vh 0;
+        margin: 1.5vh 0;
     }
 
     h3 {
-        font-size: 4.5vw;
+        font-size: 6.5vw;
+        margin-bottom: 2vh;
     }
 
-    /* Desktop Anpassung */
+    /* Desktop */
     @media (min-width: 768px) {
         h2 {
-            font-size: 32px;
+            font-size: 40px;
         }
 
         button {
-            font-size: 20px;
+            font-size: 26px;
+            height: 110px;
         }
 
         textarea {
-            font-size: 16px;
+            font-size: 20px;
         }
 
         #log {
-            font-size: 16px;
+            font-size: 18px;
         }
 
         h3 {
-            font-size: 18px;
+            font-size: 22px;
         }
     }
 </style>
@@ -122,48 +130,44 @@
 <h2>Zeiterfassung</h2>
 
 <div class="button-container">
-    <button id="startStopBtn">Eintrag</button>
+    <button id="startStopBtn">▶ START / ⏹ ENDE</button>
 </div>
 
-<textarea id="textInput" placeholder="Text eingeben..."></textarea>
+<textarea id="textInput" placeholder="📝 Notiz eingeben..."></textarea>
 
 <div class="button-container">
-    <button id="saveTextBtn">Text speichern</button>
-    <button id="sendBtn">Senden</button>
+    <button id="saveTextBtn">💾 TEXT SPEICHERN</button>
+    <button id="sendBtn">📧 SENDEN</button>
 </div>
 
 <div id="log"></div>
 
 <script>
-// Daten laden
 let logs = JSON.parse(localStorage.getItem("logs")) || [];
 
-// Funktion zum Speichern
 function saveLogs() {
     localStorage.setItem("logs", JSON.stringify(logs));
 }
 
-// Nächster Eintragstyp
 function getNextType() {
-    if (logs.length === 0) return "Anfang";
+    if (logs.length === 0) return "START";
 
     const last = logs[logs.length - 1];
 
-    if (last.startsWith("Anfang")) {
-        return "Ende";
-    } else if (last.startsWith("Ende")) {
-        return "Anfang";
+    if (last.startsWith("START")) {
+        return "ENDE";
+    } else if (last.startsWith("ENDE")) {
+        return "START";
     } else {
-        return "Anfang";
+        return "START";
     }
 }
 
-// Anzeige aktualisieren
 function updateLogDisplay() {
     const logDiv = document.getElementById("log");
     const nextType = getNextType();
 
-    logDiv.innerHTML = "<h3>" + nextType + ":</h3>";
+    logDiv.innerHTML = "<h3>Nächster: " + nextType + "</h3>";
 
     logs.forEach(entry => {
         const p = document.createElement("p");
@@ -172,7 +176,6 @@ function updateLogDisplay() {
     });
 }
 
-// Datum + Zeit
 function getCurrentDateTime() {
     const now = new Date();
     const day = String(now.getDate()).padStart(2, "0");
@@ -184,7 +187,6 @@ function getCurrentDateTime() {
     return `${day}.${month}.${year} ${hours}:${minutes}`;
 }
 
-// EINTRAG BUTTON
 document.getElementById("startStopBtn").addEventListener("click", function() {
     const now = getCurrentDateTime();
     const type = getNextType();
@@ -195,20 +197,18 @@ document.getElementById("startStopBtn").addEventListener("click", function() {
     updateLogDisplay();
 });
 
-// TEXT SPEICHERN
 document.getElementById("saveTextBtn").addEventListener("click", function() {
     const text = document.getElementById("textInput").value;
 
     if (text.trim() !== "") {
         const now = getCurrentDateTime();
-        logs.push("Notiz (" + now + "): " + text);
+        logs.push("NOTIZ (" + now + "): " + text);
         document.getElementById("textInput").value = "";
         saveLogs();
         updateLogDisplay();
     }
 });
 
-// SENDEN
 document.getElementById("sendBtn").addEventListener("click", function() {
     if (logs.length === 0) {
         alert("Keine Einträge vorhanden!");
@@ -225,19 +225,15 @@ document.getElementById("sendBtn").addEventListener("click", function() {
     const subject = encodeURIComponent("Zeiterfassung");
     const body = encodeURIComponent(content);
 
-    const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
-
-    window.location.href = mailtoLink;
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
 
     logs = [];
     saveLogs();
     updateLogDisplay();
 });
 
-// Anzeige beim Laden
 updateLogDisplay();
 </script>
 
 </body>
 </html>
-```
