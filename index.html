@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -40,7 +39,8 @@
     }
 
     textarea {
-        width: 90%;
+        width: 300px;
+        max-width: 90%;
         height: 80px;
         margin-top: 20px;
         font-size: 16px;
@@ -65,7 +65,7 @@
 
 <h2>Zeiterfassung</h2>
 
-<button id="startStopBtn">Start</button>
+<button id="startStopBtn">Eintrag</button>
 
 <br>
 
@@ -80,8 +80,6 @@
 <div id="log"></div>
 
 <script>
-let isWorking = false;
-
 // Daten laden
 let logs = JSON.parse(localStorage.getItem("logs")) || [];
 
@@ -89,9 +87,26 @@ function saveLogs() {
     localStorage.setItem("logs", JSON.stringify(logs));
 }
 
+// Prüfen was zuletzt war
+function getNextType() {
+    if (logs.length === 0) return "Anfang";
+
+    const last = logs[logs.length - 1];
+
+    if (last.startsWith("Anfang")) {
+        return "Ende";
+    } else if (last.startsWith("Ende")) {
+        return "Anfang";
+    } else {
+        return "Anfang";
+    }
+}
+
 function updateLogDisplay() {
     const logDiv = document.getElementById("log");
-    logDiv.innerHTML = "<h3>Einträge:</h3>";
+    const nextType = getNextType();
+
+    logDiv.innerHTML = "<h3>" + nextType + ":</h3>";
 
     logs.forEach(entry => {
         const p = document.createElement("p");
@@ -100,26 +115,18 @@ function updateLogDisplay() {
     });
 }
 
-// Start / Stop
+// EINTRAG BUTTON
 document.getElementById("startStopBtn").addEventListener("click", function() {
     const now = new Date().toLocaleString();
+    const type = getNextType();
 
-    if (!isWorking) {
-        this.style.backgroundColor = "red";
-        this.textContent = "Arbeit stoppen";
-        logs.push("Start: " + now);
-    } else {
-        this.style.backgroundColor = "green";
-        this.textContent = "Start";
-        logs.push("Stop: " + now);
-    }
+    logs.push(type + ": " + now);
 
-    isWorking = !isWorking;
     saveLogs();
     updateLogDisplay();
 });
 
-// Text speichern
+// TEXT SPEICHERN
 document.getElementById("saveTextBtn").addEventListener("click", function() {
     const text = document.getElementById("textInput").value;
 
@@ -145,16 +152,14 @@ document.getElementById("sendBtn").addEventListener("click", function() {
         content += entry + "\n";
     });
 
-    const email = "wueest.marc@bluewin.ch"; // <-- HIER DEINE EMAIL EINTRAGEN
+    const email = "wueest.marc@bluewin.ch";
     const subject = encodeURIComponent("Zeiterfassung");
     const body = encodeURIComponent(content);
 
     const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
 
-    // Mail-App öffnen
     window.location.href = mailtoLink;
 
-    // Daten löschen
     logs = [];
     saveLogs();
     updateLogDisplay();
@@ -166,4 +171,3 @@ updateLogDisplay();
 
 </body>
 </html>
-```
