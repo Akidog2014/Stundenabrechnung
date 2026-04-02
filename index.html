@@ -1,0 +1,169 @@
+```html
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Zeiterfassung</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
+        background-color: #f5f5f5;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    button {
+        font-size: 18px;
+        padding: 15px 25px;
+        margin: 10px;
+        border: none;
+        border-radius: 10px;
+        color: white;
+        width: 200px;
+    }
+
+    #startStopBtn {
+        background-color: green;
+    }
+
+    #saveTextBtn {
+        background-color: blue;
+    }
+
+    #sendBtn {
+        background-color: orange;
+    }
+
+    textarea {
+        width: 90%;
+        height: 80px;
+        margin-top: 20px;
+        font-size: 16px;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    #log {
+        margin-top: 20px;
+        text-align: left;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+        background: white;
+        padding: 10px;
+        border-radius: 10px;
+    }
+</style>
+</head>
+
+<body>
+
+<h2>Zeiterfassung</h2>
+
+<button id="startStopBtn">Start</button>
+
+<br>
+
+<textarea id="textInput" placeholder="Text eingeben..."></textarea>
+<br>
+
+<button id="saveTextBtn">Text speichern</button>
+<br>
+
+<button id="sendBtn">Senden</button>
+
+<div id="log"></div>
+
+<script>
+let isWorking = false;
+
+// Daten laden
+let logs = JSON.parse(localStorage.getItem("logs")) || [];
+
+function saveLogs() {
+    localStorage.setItem("logs", JSON.stringify(logs));
+}
+
+function updateLogDisplay() {
+    const logDiv = document.getElementById("log");
+    logDiv.innerHTML = "<h3>Einträge:</h3>";
+
+    logs.forEach(entry => {
+        const p = document.createElement("p");
+        p.textContent = entry;
+        logDiv.appendChild(p);
+    });
+}
+
+// Start / Stop
+document.getElementById("startStopBtn").addEventListener("click", function() {
+    const now = new Date().toLocaleString();
+
+    if (!isWorking) {
+        this.style.backgroundColor = "red";
+        this.textContent = "Arbeit stoppen";
+        logs.push("Start: " + now);
+    } else {
+        this.style.backgroundColor = "green";
+        this.textContent = "Start";
+        logs.push("Stop: " + now);
+    }
+
+    isWorking = !isWorking;
+    saveLogs();
+    updateLogDisplay();
+});
+
+// Text speichern
+document.getElementById("saveTextBtn").addEventListener("click", function() {
+    const text = document.getElementById("textInput").value;
+
+    if (text.trim() !== "") {
+        const now = new Date().toLocaleString();
+        logs.push("Notiz (" + now + "): " + text);
+        document.getElementById("textInput").value = "";
+        saveLogs();
+        updateLogDisplay();
+    }
+});
+
+// SENDEN
+document.getElementById("sendBtn").addEventListener("click", function() {
+    if (logs.length === 0) {
+        alert("Keine Einträge vorhanden!");
+        return;
+    }
+
+    let content = "Zeiterfassung:\n\n";
+
+    logs.forEach(entry => {
+        content += entry + "\n";
+    });
+
+    const email = "wueest.marc@bluewin.ch"; // <-- HIER DEINE EMAIL EINTRAGEN
+    const subject = encodeURIComponent("Zeiterfassung");
+    const body = encodeURIComponent(content);
+
+    const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
+
+    // Mail-App öffnen
+    window.location.href = mailtoLink;
+
+    // Daten löschen
+    logs = [];
+    saveLogs();
+    updateLogDisplay();
+});
+
+// Anzeige beim Laden
+updateLogDisplay();
+</script>
+
+</body>
+</html>
+```
