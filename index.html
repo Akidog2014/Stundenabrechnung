@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Zeiterfassung 1.0</title>
+<title>Zeiterfassung 2.0</title>
 
 <style>
     body {
@@ -103,7 +103,7 @@
 
 <body>
 
-<h2>Zeiterfassung 1.0</h2>
+<h2>Zeiterfassung</h2>
 
 <div class="button-container">
     <button id="startStopBtn">▶ START / ⏹ ENDE</button>
@@ -151,32 +151,56 @@ function updateLogDisplay() {
     const logDiv = document.getElementById("log");
     logDiv.innerHTML = "<h3>Nächster: " + getNextType() + "</h3>";
 
-    logs.forEach((entry, index) => {
-        const row = document.createElement("div");
-        row.className = "entry";
+logs.forEach((entry, index) => {
+    const row = document.createElement("div");
+    row.className = "entry";
+    row.style.flexDirection = "column";
 
+    let display = document.createElement("div");
+
+    if (entry.startsWith("START") || entry.startsWith("ENDE")) {
+        const [type, time] = entry.split(": ");
+
+        display.innerHTML = `
+            <div style="font-size: 4vw; color: gray;">${type}</div>
+            <div style="font-size: 7vw; font-weight: bold;">${time}</div>
+        `;
+    } else {
+        display.innerHTML = `<div style="font-size: 5vw;">${entry}</div>`;
+    }
+
+    // Klick zum Bearbeiten
+    display.onclick = () => {
         const input = document.createElement("input");
         input.value = entry;
+        input.style.fontSize = "5vw";
+        input.style.width = "100%";
 
-        input.addEventListener("change", () => {
+        input.onblur = () => {
             logs[index] = input.value;
-            saveLogs();
-        });
-
-        const del = document.createElement("button");
-        del.textContent = "❌";
-        del.className = "deleteBtn";
-
-        del.onclick = () => {
-            logs.splice(index, 1);
             saveLogs();
             updateLogDisplay();
         };
 
+        row.innerHTML = "";
         row.appendChild(input);
-        row.appendChild(del);
-        logDiv.appendChild(row);
-    });
+        input.focus();
+    };
+
+    const del = document.createElement("button");
+    del.textContent = "❌";
+    del.className = "deleteBtn";
+
+    del.onclick = () => {
+        logs.splice(index, 1);
+        saveLogs();
+        updateLogDisplay();
+    };
+
+    row.appendChild(display);
+    row.appendChild(del);
+    logDiv.appendChild(row);
+});
 }
 
 document.getElementById("startStopBtn").onclick = () => {
